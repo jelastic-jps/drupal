@@ -1,7 +1,6 @@
 # Jelastic Drupal Add-on
 
 This repository provides [Drupal](http://drupal.org/) add-on for Jelastic Platform.
-[![GET IT HOSTED](https://raw.githubusercontent.com/JelasticJPS/Drupal/master/images/getithosted.png)](http://go.jelastic.com/test?hoster-select=1&theme=modern&app=https://raw.githubusercontent.com/JelasticJPS/Drupal/master/Drupal-7.41.json)
 
 **Drupal** is an open source content management platform powering millions of websites and applications.
 
