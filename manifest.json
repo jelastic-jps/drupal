@@ -3,7 +3,7 @@
 	"application": {
 		"id": "drupal",
 		"name": "Drupal",
-		"logo": "https://raw.githubusercontent.com/JelasticJPS/Drupal/master/images/Drupal.png",
+		"logo": "https://raw.githubusercontent.com/jelastic-jps/Drupal/master/images/Drupal.png",
 		"homepage": "http://drupal.org/",
 		"version": "7.41",
 		"categories": ["apps/cms", "apps/popular", "apps/content-management"],
@@ -17,7 +17,7 @@
 					"database": {
 						"name": "drupal",
 						"user": "drupal",
-						"dump": "https://raw.githubusercontent.com/JelasticJPS/Drupal/master/dumps/drupal.sql",
+						"dump": "https://raw.githubusercontent.com/jelastic-jps/Drupal/master/dumps/drupal.sql",
 						"patch": "UPDATE drupal.watchdog SET `referer`=replace(`referer`, \"drupcl.demo.jelastic.com\", \"${env.domain}\");UPDATE drupal.watchdog SET `location`=replace(`location`, \"drupcl.demo.jelastic.com\", \"${env.domain}\"); UPDATE drupal.users SET mail=\"${user.email}\" WHERE uid=1; UPDATE drupal.users SET init=\"${user.email}\" WHERE uid=1;"
 					}
 				}, {
@@ -59,7 +59,7 @@
 			"deployments": [{
 					"name": "drupal-7.41.zip",
 					"context": "ROOT",
-					"archive": "https://raw.githubusercontent.com/JelasticJPS/Drupal/master/dumps/archive.zip"
+					"archive": "https://raw.githubusercontent.com/jelastic-jps/Drupal/master/dumps/archive.zip"
 				}
 			]
 		},
