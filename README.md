@@ -8,7 +8,7 @@ This package is designed to deploy Drupal environment which represents an open s
 
 ### Environment Topology
 
-![Drupal Topology](https://docs.google.com/drawings/d/11zyDL0tFd5l9haGBU1an6X4nHNuBX0Yhp0dxH7vmpPA/pub?w=505&h=216)
+![drupal-environment-topology](images/drupal-environment-topology.png)
 
 ### Specifics
 
