@@ -5,22 +5,63 @@
     "name": "Drupal",
     "logo": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/images/Drupal.png",
     "homepage": "http://drupal.org/",
-    "version": "8.3.7",
+    "version": "8.5.3",
     "categories": [
       "apps/cms",
       "apps/popular",
       "apps/content-management"
     ],
+    "globals": {
+      "ADMIN_PASS": "${fn.password}"
+    },
     "description": {
       "text": "Drupal is an open source content management platform powering millions of websites and applications."
     },
     "onInstall": [
       {
         "deploy": {
-          "name": "drupal-8.3.7.zip",
+          "name": "drupal-8.5.3.zip",
           "context": "ROOT",
           "archive": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/dumps/archive.zip"
         }
+      },
+      {
+        "prepareSqlDatabase": [
+          {
+            "nodeGroup": "sqldb",
+            "loginCredentials": {
+              "user": "root",
+              "password": "${nodes.sqldb.password}"
+            },
+            "newDatabaseName": "drupal",
+            "newDatabaseUser": {
+              "name": "drupal",
+              "password": "${globals.ADMIN_PASS}"
+            }
+          }
+        ]
+      },
+      {
+        "restoreSqlDump": [
+          {
+            "nodeGroup": "sqldb",
+            "databaseName": "drupal",
+            "user": "root",
+            "password": "${nodes.sqldb.password}",
+            "dump": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/dumps/drupal.sql"
+          }
+        ]
+      },
+      {
+        "applySqlPatch": [
+          {
+            "nodeGroup": "sqldb",
+            "databaseName": "drupal",
+            "user": "root",
+            "password": "${nodes.sqldb.password}",
+            "patch": "UPDATE drupal.watchdog SET `referer`=replace(`referer`, \"drupal.demo.jelastic.com\", \"${env.domain}\"); UPDATE drupal.watchdog SET `location`=replace(`location`, \"drupal.demo.jelastic.com\", \"${env.domain}\"); UPDATE drupal.users_field_data SET mail=\"${user.email}\" WHERE uid=1; UPDATE drupal.users_field_data SET init=\"${user.email}\" WHERE uid=1;"
+          }
+        ]
       },
       {
         "replaceInFile": [
@@ -31,15 +72,15 @@
                 "pattern": "{DB_HOST}"
               },
               {
-                "replacement": "${nodes.mysql5.database.user}",
+                "replacement": "drupal",
                 "pattern": "{DB_USER}"
               },
               {
-                "replacement": "${nodes.mysql5.database.password}",
+                "replacement": "${globals.ADMIN_PASS}",
                 "pattern": "{DB_PASSWORD}"
               },
               {
-                "replacement": "${nodes.mysql5.database.name}",
+                "replacement": "drupal",
                 "pattern": "{DB_NAME}"
               }
             ],
@@ -49,21 +90,29 @@
           {
             "replacements": [
               {
+                "replacement": "zend_extension=/usr/lib64/php/modules/opcache.so",
+                "pattern": "; zend_extension=/usr/lib64/php/modules/opcache.so"
+              },
+              {
                 "replacement": "mbstring.encoding_translation = Off",
                 "pattern": "mbstring.encoding_translation = On"
               },
               {
                 "replacement": "extension=gd.so",
                 "pattern": ".*extension=gd.so"
-              },
-              {
-                "replacement": "zend_extension=/usr/lib64/php/modules/opcache.so",
-                "patten": ".*zend_extension=/usr/lib64/php/modules/opcache.so"
               }
             ],
             "path": "/etc/php.ini",
             "nodeType": "apache2"
           }
+        ]
+      },
+      {
+        "cmd [cp]": [
+          "php /var/www/webroot/ROOT/core/scripts/password-hash.sh '${globals.ADMIN_PASS}' > /var/www/webroot/pass.txt",
+          "TMP_PASS=$(cat /var/www/webroot/pass.txt | grep 'hash: ' | sed -r 's/.*hash: //g' | cut -c 1-)",
+          "mysql -uroot -p${nodes.sqldb.password} -h${nodes.sqldb.address} -e \"UPDATE drupal.users_field_data SET pass='${TMP_PASS}' WHERE uid = 1;use drupal;DELETE FROM cache_entity WHERE cid = 'values:user:1';\" 2>&1",
+          "rm -rf /var/www/webroot/pass.txt"
         ]
       },
       {
@@ -73,19 +122,8 @@
       }
     ],
     "env": {
-      "configs": [
-        {
-          "nodeType": "mysql5",
-          "database": {
-            "name": "drupal",
-            "user": "drupal",
-            "dump": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/dumps/drupal.sql",
-            "patch": "UPDATE drupal.watchdog SET `referer`=replace(`referer`, \"drupal.demo.jelastic.com\", \"env.domain\"); UPDATE drupal.watchdog SET `location`=replace(`location`, \"drupal.demo.jelastic.com\", \"${env.domain}\"); UPDATE drupal.users_field_data SET mail=\"${user.email}\" WHERE uid=1; UPDATE drupal.users_field_data SET init=\"${user.email}\" WHERE uid=1;"
-          }
-        }
-      ],
       "topology": {
-        "engine": "php5.6",
+        "engine": "php7.1",
         "nodes": [
           {
             "cloudlets": 8,
@@ -98,7 +136,7 @@
         ]
       }
     },
-    "success": "Below you will find your admin panel link, username and password.</br></br> <table style='font-size:13px; border: none;'><tr><td>Admin panel URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}/' target='_blank'>${env.protocol}://${env.domain}/</a></td></tr>  <tr><td>Admin name:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>password</td></tr></table></br>To add custom domain name for your Drupal installation follow the steps described in our <a href='http://docs.jelastic.com/custom-domains' target='_blank'>documentation</a>"
+    "success": "Below you will find your admin panel link, username and password.</br></br> <table style='font-size:13px; border: none;'><tr><td>Admin panel URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}/' target='_blank'>${env.protocol}://${env.domain}/</a></td></tr>  <tr><td>Admin name:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>${globals.ADMIN_PASS}</td></tr></table></br>To add custom domain name for your Drupal installation follow the steps described in our <a href='http://docs.jelastic.com/custom-domains' target='_blank'>documentation</a>"
   },
   "jpsVersion": "0.2"
 }
