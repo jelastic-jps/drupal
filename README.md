@@ -21,7 +21,7 @@ DB                   |    MySQL      |       1                        |         
 * DB - Database 
 * CT - Container
 
-**Drupal Version**: 7.41<br/>
+**Drupal Version**: 8.3.7<br/>
 **PHP Engine**: PHP 5.4.45<br/>
 **MySQL Database**: 5.7.12
 
