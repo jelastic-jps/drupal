@@ -20,9 +20,9 @@
     "onInstall": [
       {
         "deploy": {
-          "name": "drupal-8.5.3.zip",
+          "name": "drupal-8.5.3.tar.gz",
           "context": "ROOT",
-          "archive": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/dumps/archive.zip"
+          "archive": "https://download.jelastic.com/public.php?service=files&t=b6e31c9f753cb251eacc658aab23d471&download"
         }
       },
       {
