@@ -53,14 +53,10 @@
         ]
       },
       {
-        "applySqlPatch": [
-          {
-            "nodeGroup": "sqldb",
-            "databaseName": "drupal",
-            "user": "root",
-            "password": "${nodes.sqldb.password}",
-            "patch": "UPDATE drupal.watchdog SET `referer`=replace(`referer`, \"drupal.demo.jelastic.com\", \"${env.domain}\"); UPDATE drupal.watchdog SET `location`=replace(`location`, \"drupal.demo.jelastic.com\", \"${env.domain}\"); UPDATE drupal.users_field_data SET mail=\"${user.email}\" WHERE uid=1; UPDATE drupal.users_field_data SET init=\"${user.email}\" WHERE uid=1;"
-          }
+        "cmd [sqldb]": [
+          "curl -fsSL \"https://raw.githubusercontent.com/jelastic-jps/drupal/master/scripts/applySQLPatch.sh\" -o /tmp/applySQLPatch.sh",
+          "/bin/bash -x /tmp/applySQLPatch.sh root ${nodes.sqldb.password} drupal >> /tmp/applySQLPatch.log",
+          "rm -rf /tmp/applySQLPatch.sh"
         ]
       },
       {
