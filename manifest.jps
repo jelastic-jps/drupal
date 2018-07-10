@@ -108,7 +108,9 @@
           "php /var/www/webroot/ROOT/core/scripts/password-hash.sh '${globals.ADMIN_PASS}' > /var/www/webroot/pass.txt",
           "TMP_PASS=$(cat /var/www/webroot/pass.txt | grep 'hash: ' | sed -r 's/.*hash: //g' | cut -c 1-)",
           "mysql -uroot -p${nodes.sqldb.password} -h${nodes.sqldb.address} -e \"UPDATE drupal.users_field_data SET pass='${TMP_PASS}' WHERE uid = 1;use drupal;DELETE FROM cache_entity WHERE cid = 'values:user:1';\" 2>&1",
-          "rm -rf /var/www/webroot/pass.txt"
+          "rm -rf /var/www/webroot/pass.txt",
+          "chmod 644 /var/www/webroot/ROOT/sites/default/settings.php",
+          "echo \"\\$settings['trusted_host_patterns'] = array(\n  '^${env.domain}$',\n  '^www\\.${env.domain}$',\n);\" >> /var/www/webroot/ROOT/sites/default/settings.php"
         ]
       },
       {
