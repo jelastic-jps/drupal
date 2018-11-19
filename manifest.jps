@@ -1,140 +1,93 @@
 {
-  "jpsType": "install",
-  "application": {
-    "id": "drupal",
-    "name": "Drupal",
-    "logo": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/images/Drupal.png",
-    "homepage": "http://drupal.org/",
-    "version": "8.5.3",
-    "categories": [
-      "apps/cms",
-      "apps/popular",
-      "apps/content-management"
-    ],
-    "globals": {
-      "ADMIN_PASS": "${fn.password}"
-    },
-    "description": {
-      "text": "Drupal is an open source content management platform powering millions of websites and applications."
-    },
-    "onInstall": [
-      {
-        "deploy": {
-          "name": "drupal-8.5.3.tar.gz",
-          "context": "ROOT",
-          "archive": "https://download.jelastic.com/public.php?service=files&t=b6e31c9f753cb251eacc658aab23d471&download"
-        }
-      },
-      {
-        "prepareSqlDatabase": [
-          {
-            "nodeGroup": "sqldb",
-            "loginCredentials": {
-              "user": "root",
-              "password": "${nodes.sqldb.password}"
-            },
-            "newDatabaseName": "drupal",
-            "newDatabaseUser": {
-              "name": "drupal",
-              "password": "${globals.ADMIN_PASS}"
-            }
-          }
-        ]
-      },
-      {
-        "restoreSqlDump": [
-          {
-            "nodeGroup": "sqldb",
-            "databaseName": "drupal",
-            "user": "root",
-            "password": "${nodes.sqldb.password}",
-            "dump": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/dumps/drupal.sql"
-          }
-        ]
-      },
-      {
-        "cmd [sqldb]": [
-          "curl -fsSL \"https://raw.githubusercontent.com/jelastic-jps/drupal/master/scripts/applySQLPatch.sh\" -o /tmp/applySQLPatch.sh",
-          "/bin/bash -x /tmp/applySQLPatch.sh root ${nodes.sqldb.password} drupal >> /tmp/applySQLPatch.log",
-          "rm -rf /tmp/applySQLPatch.sh"
-        ]
-      },
-      {
-        "replaceInFile": [
-          {
-            "replacements": [
-              {
-                "replacement": "${nodes.mysql5.address}",
-                "pattern": "{DB_HOST}"
-              },
-              {
-                "replacement": "drupal",
-                "pattern": "{DB_USER}"
-              },
-              {
-                "replacement": "${globals.ADMIN_PASS}",
-                "pattern": "{DB_PASSWORD}"
-              },
-              {
-                "replacement": "drupal",
-                "pattern": "{DB_NAME}"
-              }
-            ],
-            "path": "${SERVER_WEBROOT}/ROOT/sites/default/settings.php",
-            "nodeType": "apache2"
-          },
-          {
-            "replacements": [
-              {
-                "replacement": "zend_extension=/usr/lib64/php/modules/opcache.so",
-                "pattern": "; zend_extension=/usr/lib64/php/modules/opcache.so"
-              },
-              {
-                "replacement": "mbstring.encoding_translation = Off",
-                "pattern": "mbstring.encoding_translation = On"
-              },
-              {
-                "replacement": "extension=gd.so",
-                "pattern": ".*extension=gd.so"
-              }
-            ],
-            "path": "/etc/php.ini",
-            "nodeType": "apache2"
-          }
-        ]
-      },
-      {
-        "cmd [cp]": [
-          "php /var/www/webroot/ROOT/core/scripts/password-hash.sh '${globals.ADMIN_PASS}' > /var/www/webroot/pass.txt",
-          "TMP_PASS=$(cat /var/www/webroot/pass.txt | grep 'hash: ' | sed -r 's/.*hash: //g' | cut -c 1-)",
-          "mysql -uroot -p${nodes.sqldb.password} -h${nodes.sqldb.address} -e \"UPDATE drupal.users_field_data SET pass='${TMP_PASS}' WHERE uid = 1;use drupal;DELETE FROM cache_entity WHERE cid = 'values:user:1';\" 2>&1",
-          "rm -rf /var/www/webroot/pass.txt",
-          "chmod 644 /var/www/webroot/ROOT/sites/default/settings.php",
-          "echo \"\\$settings['trusted_host_patterns'] = array(\n  '^${env.domain}$',\n  '^www\\.${env.domain}$',\n);\" >> /var/www/webroot/ROOT/sites/default/settings.php"
-        ]
-      },
-      {
-        "restartNodes": {
-          "nodeGroup": "cp"
-        }
-      }
-    ],
-    "env": {
-      "topology": {
-        "engine": "php7.1",
-        "nodes": [
-          {
-            "cloudlets": 8,
-            "nodeType": "apache2"
-          },
-          {
-            "cloudlets": 8,
-            "nodeType": "mysql5"
-          }
-        ]
-      }
-    },
-    "success": "Below you will find your admin panel link, username and password.</br></br> <table style='font-size:13px; border: none;'><tr><td>Admin panel URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}/' target='_blank'>${env.protocol}://${env.domain}/</a></td></tr>  <tr><td>Admin name:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>${globals.ADMIN_PASS}</td></tr></table></br>To add custom domain name for your Drupal installation follow the steps described in our <a href='http://docs.jelastic.com/custom-domains' target='_blank'>documentation</a>"
+  "type": "install",
+  "id": "drupal",
+  "name": "Drupal",
+  "logo": "https://raw.githubusercontent.com/jelastic-jps/drupal/master/images/Drupal.png",
+  "homepage": "http://drupal.org/",
+  "version": "latest",
+  "categories": [
+    "apps/cms",
+    "apps/popular",
+    "apps/content-management"
+  ],
+  "globals": {
+    "ADMIN_PASS": "${fn.password}",
+    "DB_PASS": "${fn.password(6)}",
+    "APACHE_PATH": "/var/www/",
+    "LOG_FILE": "/install_drupal.log"
   },
-  "jpsVersion": "0.2"
+  "description": "Drupal is an open source content management platform powering millions of websites and applications.",
+  "onInstall": [
+    {
+      "prepareSqlDatabase": [
+        {
+          "nodeGroup": "sqldb",
+          "loginCredentials": {
+            "user": "root",
+            "password": "${nodes.sqldb.password}"
+          },
+          "newDatabaseName": "drupal",
+          "newDatabaseUser": {
+            "name": "drupal",
+            "password": "${globals.DB_PASS}"
+          }
+        }
+      ]
+    },
+    {
+      "replaceInFile": [
+        {
+          "replacements": [
+            {
+              "replacement": "zend_extension=/usr/lib64/php/modules/opcache.so",
+              "pattern": "; zend_extension=/usr/lib64/php/modules/opcache.so"
+            },
+            {
+              "replacement": "mbstring.encoding_translation = Off",
+              "pattern": "mbstring.encoding_translation = On"
+            },
+            {
+              "replacement": "extension=gd.so",
+              "pattern": ".*extension=gd.so"
+            }
+          ],
+          "path": "/etc/php.ini",
+          "nodeType": "apache2"
+        }
+      ]
+    },
+    {
+      "restartNodes": {
+        "nodeGroup": "cp"
+      }
+    },
+    {
+      "cmd [cp]": [
+        "rm -rf ${SERVER_WEBROOT}/ROOT",
+        "curl -fsSL \"https://getcomposer.org/installer\" -o ${globals.APACHE_PATH}/installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE} && php installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}",
+        "composer global require drush/drush:^8.1 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}",
+        "${globals.APACHE_PATH}/.config/composer/vendor/bin/drush dl drupal-8 --destination=${SERVER_WEBROOT} --drupal-project-rename=ROOT 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}"
+      ]
+    },
+    {
+      "cmd [cp]": "cd ${SERVER_WEBROOT}/ROOT && ${globals.APACHE_PATH}/.config/composer/vendor/bin/drush -y si standard --db-url=\"mysql://drupal:${globals.DB_PASS}@${nodes.sqldb.address}/drupal\" --site-name=\"Jelastic Drupal\" --account-name=\"admin\" --account-pass=\"${globals.ADMIN_PASS}\" --account-mail=\"${user.email}\" 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}"
+    },
+    {
+      "cmd [cp]": "echo \"\\$settings['trusted_host_patterns'] = array(\n  '^${env.domain}$',\n  '^www\\.${env.domain}$',\n);\" >> /var/www/webroot/ROOT/sites/default/settings.php",
+      "user": "root"
+    }
+  ],
+  "engine": "php7.1",
+  "nodes": [
+    {
+      "cloudlets": 8,
+      "nodeType": "apache2"
+    },
+    {
+      "cloudlets": 8,
+      "nodeType": "mysql5"
+    }
+  ],
+  "success": "Below you will find your admin panel link, username and password.</br></br> <table style='font-size:13px; border: none;'><tr><td>Admin panel URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}/' target='_blank'>${env.protocol}://${env.domain}/</a></td></tr>  <tr><td>Admin name:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>${globals.ADMIN_PASS}</td></tr></table></br>To add custom domain name for your Drupal installation follow the steps described in our <a href='http://docs.jelastic.com/custom-domains' target='_blank'>documentation</a>",
+  "jpsVersion": "1.4"
 }
