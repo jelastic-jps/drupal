@@ -1,5 +1,5 @@
-tags:
+templates:
   apachephp:
-    - apachephp
+    - ^apachephp
   mysql:
-    - mysql5
+    - ^mysql5$
