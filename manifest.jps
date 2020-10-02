@@ -48,7 +48,7 @@ onInstall:
   user: root
 engine: php7.3
 nodes:
-- cloudlets: 8
+- cloudlets: 16
   nodeType: apache2
 - cloudlets: 8
   nodeType: mysql5
