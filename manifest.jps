@@ -1,4 +1,5 @@
 type: install
+version: 1.7.3
 id: drupal
 name: Drupal
 logo: https://raw.githubusercontent.com/jelastic-jps/drupal/master/images/Drupal.png
