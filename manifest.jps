@@ -2,18 +2,32 @@ type: install
 version: 1.7.3
 id: drupal
 name: Drupal
-logo: https://raw.githubusercontent.com/jelastic-jps/drupal/master/images/Drupal.png
+logo: images/Drupal.png
 homepage: http://drupal.org/
+
+baseUrl: https://raw.githubusercontent.com/jelastic-jps/drupal/master/
+mixins:
+- configs/vers.yaml
+
 categories:
 - apps/cms
 - apps/popular
 - apps/content-management
+
 globals:
   ADMIN_PASS: "${fn.password}"
   DB_PASS: "${fn.password(6)}"
   APACHE_PATH: "/var/www/"
   LOG_FILE: "/install_drupal.log"
+
 description: Drupal is an open source content management platform powering millions of websites and applications.
+
+nodes:
+- cloudlets: 16
+  nodeType: apache2
+- cloudlets: 8
+  nodeType: mysql5
+
 onInstall:
 - prepareSqlDatabase:
   - nodeGroup: sqldb
@@ -39,20 +53,14 @@ onInstall:
 - cmd [cp]:
   - rm -rf ${SERVER_WEBROOT}/ROOT
   - curl -fsSL "https://getcomposer.org/installer" -o ${globals.APACHE_PATH}/installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE} && php installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
-  - composer global require drush/drush:^8.1 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
-  - "${globals.APACHE_PATH}/.config/composer/vendor/bin/drush dl drupal-8 --destination=${SERVER_WEBROOT} --drupal-project-rename=ROOT 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}"
-- cmd [cp]: cd ${SERVER_WEBROOT}/ROOT && ${globals.APACHE_PATH}/.config/composer/vendor/bin/drush -y si standard --db-url="mysql://drupal:${globals.DB_PASS}@${nodes.sqldb.address}/drupal"
-    --site-name="Jelastic Drupal" --account-name="admin" --account-pass="${globals.ADMIN_PASS}" --account-mail="${user.email}" 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
+  - composer global require drush/drush:^8.3.1 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
+  - composer create-project drupal/legacy-project:${globals.version_drupal} ${SERVER_WEBROOT}/ROOT
+- cmd [cp]: cd ${SERVER_WEBROOT}/ROOT && ${globals.APACHE_PATH}/.config/composer/vendor/bin/drush -y si standard --db-url='mysql://drupal:${globals.DB_PASS}@${nodes.sqldb.address}/drupal' --site-name="Jelastic Drupal" --account-name="admin" --account-pass="${globals.ADMIN_PASS}" --account-mail="${user.email}" 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
 - cmd [cp]:
   - echo "\$settings['trusted_host_patterns'] = array( '^${env.domain}$', '^www\.${env.domain}$', );" >> /var/www/webroot/ROOT/sites/default/settings.php
   - chown apache:apache /var/spool/clientmqueue
   user: root
-engine: php7.3
-nodes:
-- cloudlets: 16
-  nodeType: apache2
-- cloudlets: 8
-  nodeType: mysql5
+
 success: |
   Below you will find your admin panel link, username and password.  
   Admin panel URL: [${env.protocol}://${env.domain}/](${env.protocol}://${env.domain}/)  
