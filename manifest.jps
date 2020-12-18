@@ -24,7 +24,9 @@ description: Drupal is an open source content management platform powering milli
 
 nodes:
 - cloudlets: 16
-  nodeType: apache2
+  nodeType: apache
+  tag: 2.4.46-php-7.4.13
+  
 - cloudlets: 8
   nodeType: mysql5
 
@@ -47,7 +49,7 @@ onInstall:
     - replacement: extension=gd.so
       pattern: ".*extension=gd.so"
     path: "/etc/php.ini"
-    nodeType: apache2
+    nodeType: apache
 - restartNodes:
     nodeGroup: cp
 - cmd [cp]:
