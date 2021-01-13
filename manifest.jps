@@ -40,16 +40,10 @@ onInstall:
     newDatabaseUser:
       name: drupal
       password: "${globals.DB_PASS}"
-- replaceInFile:
-  - replacements:
-    - replacement: zend_extension=/usr/lib64/php/modules/opcache.so
-      pattern: "; zend_extension=/usr/lib64/php/modules/opcache.so"
-    - replacement: mbstring.encoding_translation = Off
-      pattern: mbstring.encoding_translation = On
-    - replacement: extension=gd.so
-      pattern: ".*extension=gd.so"
-    path: "/etc/php.ini"
-    nodeType: apache2
+- cmd [cp]: |-
+    echo "extension=gd.so;
+    mbstring.encoding_translation = 0;
+    zend_extension=/usr/lib64/php/modules/opcache.so;" > /etc/php.d/drupal-php.ini
 - restartNodes:
     nodeGroup: cp
 - cmd [cp]:
