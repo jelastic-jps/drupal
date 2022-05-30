@@ -31,15 +31,10 @@ nodes:
   nodeType: mysql5
 
 onInstall:
-- prepareSqlDatabase:
-  - nodeGroup: sqldb
-    loginCredentials:
-      user: root
-      password: "${nodes.sqldb.password}"
-    newDatabaseName: drupal
-    newDatabaseUser:
-      name: drupal
-      password: "${globals.DB_PASS}"
+- cmd[sqldb]: |-
+    MYSQL_PWD=${nodes.mysql5.password} mysql -uroot -e "CREATE DATABASE drupal;"
+    MYSQL_PWD=${nodes.mysql5.password} mysql -uroot -e "CREATE USER 'drupal'@'%' IDENTIFIED BY '${globals.DB_PASS}';"
+    MYSQL_PWD=${nodes.mysql5.password} mysql -uroot -e "GRANT ALL PRIVILEGES ON drupal.* To 'drupal'@'%' IDENTIFIED BY '${globals.DB_PASS}';"
 - cmd [cp]: |-
     echo "extension=gd.so;
     mbstring.encoding_translation = 0;
