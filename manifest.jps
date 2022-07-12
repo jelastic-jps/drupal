@@ -43,10 +43,23 @@ onInstall:
     nodeGroup: cp
 - cmd [cp]:
   - rm -rf ${SERVER_WEBROOT}/ROOT
-  - curl -fsSL "https://getcomposer.org/installer" -o ${globals.APACHE_PATH}/installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE} && php installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
-  - composer global require drush/drush:^8.3.1 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
-  - composer create-project drupal/legacy-project:${globals.version_drupal} ${SERVER_WEBROOT}/ROOT
-- cmd [cp]: cd ${SERVER_WEBROOT}/ROOT && ${globals.APACHE_PATH}/.config/composer/vendor/bin/drush -y si standard --db-url='mysql://drupal:${globals.DB_PASS}@${nodes.sqldb.address}/drupal' --site-name="Jelastic Drupal" --account-name="admin" --account-pass="${globals.ADMIN_PASS}" --account-mail="${user.email}" 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
+  - wget -O drush.phar https://github.com/drush-ops/drush-launcher/releases/latest/download/drush.phar
+  - chmod +x drush.phar
+
+- cmd [cp]: |-
+    sudo mv /var/www/drush.phar /usr/local/bin/drush
+  user: root
+
+- cmd [cp]: |-    
+    curl -fsSL "https://getcomposer.org/installer" -o ${globals.APACHE_PATH}/installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE} && php installer 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
+    composer create-project drupal/legacy-project:${globals.version_drupal} ${SERVER_WEBROOT}/ROOT
+    cd /var/www/webroot/ROOT/
+    rm -rf vendor
+    composer config allow-plugins.composer/installers true
+    composer config allow-plugins.drupal/core-composer-scaffold  true
+    composer config allow-plugins.drupal/core-project-message true
+    composer config allow-plugins.drupal/core-vendor-hardening true    
+- cmd [cp]: cd /var/www/webroot/ROOT/ && composer require drush/drush 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE} && drush -y si standard --db-url='mysql://drupal:${globals.DB_PASS}@${nodes.sqldb.address}/drupal' --site-name="Jelastic Drupal" --account-name="admin" --account-pass="${globals.ADMIN_PASS}" --account-mail="${user.email}" 2>&1 1>>${globals.APACHE_PATH}${globals.LOG_FILE}
 - cmd [cp]:
   - echo "\$settings['trusted_host_patterns'] = array( '^${env.domain}$', '^www\.${env.domain}$', );" >> /var/www/webroot/ROOT/sites/default/settings.php
   - chown apache:apache /var/spool/clientmqueue
