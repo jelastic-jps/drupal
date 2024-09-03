@@ -2,4 +2,4 @@ templates:
   apachephp:
     - ^apachephp
   mysql:
-    - ^mysql5$
+    - ^mysql8$
