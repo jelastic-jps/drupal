@@ -71,4 +71,4 @@ success: |
   Admin name: admin  
   Password: ${globals.ADMIN_PASS}  
   
-  To add custom domain name for your Drupal installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)
+  To add custom domain name for your Drupal installation follow the steps described in our [documentation](https://www.virtuozzo.com/application-platform-docs/custom-domains/).
