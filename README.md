@@ -4,7 +4,7 @@
 
 # Drupal
 
-The package deploys the Drupal CMS solution - an open-source, flexible, and highly scalable content management system that enables users to create and manage various websites and application types.
+The package deploys the [Drupal CMS](https://new.drupal.org/home) solution - an open-source, flexible, and highly scalable content management system that enables users to create and manage various websites and application types.
 
 
 ## Environment Topology
