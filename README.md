@@ -15,8 +15,6 @@ This package creates a dedicated Drupal environment that contains one applicatio
 - MySQL 8 database
 - Drupal 11.0.1
 
-![Drupal environment topology](images/drupal-environment-topology.png)
-
 
 ## Deployment to Cloud
 
