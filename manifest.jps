@@ -3,7 +3,7 @@ version: 1.7.3
 id: drupal
 name: Drupal
 logo: images/Drupal.png
-homepage: http://drupal.org/
+homepage: https://new.drupal.org/home
 
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/drupal/master/
 mixins:
@@ -20,7 +20,7 @@ globals:
   APACHE_PATH: "/var/www/"
   LOG_FILE: "/install_drupal.log"
 
-description: Drupal is an open source content management platform powering millions of websites and applications.
+description: Drupal is an open-source content management platform that enables users to create and manage various websites and web applications.
 
 nodes:
 - cloudlets: 16
@@ -66,9 +66,10 @@ onInstall:
   user: root
 
 success: |
-  Below you will find your admin panel link, username and password.  
-  Admin panel URL: [${env.protocol}://${env.domain}/](${env.protocol}://${env.domain}/)  
-  Admin name: admin  
-  Password: ${globals.ADMIN_PASS}  
+  Use the following credentials to access the Drupal admin panel:
+
+  **Admin panel URL:** [${env.protocol}://${env.domain}/](${env.protocol}://${env.domain}/)  
+  **Admin name:** admin  
+  **Admin password:** ${globals.ADMIN_PASS}  
   
-  To add custom domain name for your Drupal installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)
+  To add a custom domain name for your Drupal installation, follow the steps described in our [documentation](https://www.virtuozzo.com/application-platform-docs/custom-domains/).

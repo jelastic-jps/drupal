@@ -1,36 +1,34 @@
-[![Drupal](../../raw/master/images/Drupal.png)](../../../drupal)
-## Drupal
+<p align="center"> 
+<img src="images/Drupal.png" alt="Drupal">
+</p>
 
-The JPS package deploys Drupal that initially contains 1 application server and 1 database container.
+# Drupal
 
-### Highlights
-This package is designed to deploy Drupal environment which represents an open source content management platform powering millions of websites and applications.
+The package deploys the [Drupal CMS](https://new.drupal.org/home) solution - an open-source, flexible, and highly scalable content management system that enables users to create and manage various websites and application types.
 
-### Environment Topology
 
-![drupal-environment-topology](images/drupal-environment-topology.png)
+## Environment Topology
 
-### Specifics
+This package creates a dedicated Drupal environment that contains one application server and one database container. It automatically deploys and sets the Drupal application. The automatic vertical scaling is enabled out of the box, and [horizontal scaling](https://www.virtuozzo.com/application-platform-docs/automatic-horizontal-scaling/) can be configured (if needed). The default software stacks utilized in the package are the following:
 
-Layer                |     Server    | Number of CTs <br/> by default | Cloudlets per CT <br/> (reserved/dynamic) | Options
--------------------- | --------------| :----------------------------: | :---------------------------------------: | :-----:
-AS                   | Apache 2 (MOD_PHP) |       1                        |           1 / 16                          | -
-DB                   |    MySQL      |       1                        |           1 / 16                           | -
+- Apache 2 PHP application server (PHP 8.3)
+- MySQL 8 database
+- Drupal 11.0.1
 
-* AS - Application server 
-* DB - Database 
-* CT - Container
 
-**Drupal Version**: 8.3.7<br/>
-**PHP Engine**: PHP 5.4.45<br/>
-**MySQL Database**: 5.7.12
+## Deployment to Cloud
 
-### Deployment
+To get your Drupal solution, click the "**Deploy to Cloud**" button below, specify your email address within the widget, choose one of the [Virtuozzo Public Cloud Providers](https://www.virtuozzo.com/application-platform-partners/), and confirm by clicking **Install**.
 
-In order to get this solution instantly deployed, click the "Get It Hosted Now" button, specify your email address within the widget, choose one of the [Jelastic Public Cloud providers](https://jelastic.cloud) and press Install.
+[![Deploy to Cloud](https://raw.githubusercontent.com/jelastic-jps/common/main/images/deploy-to-cloud.png)](https://www.virtuozzo.com/install/?manifest=https://raw.githubusercontent.com/jelastic-jps/drupal/refs/heads/master/manifest.jps)
 
-[![GET IT HOSTED](https://raw.githubusercontent.com/jelastic-jps/jpswiki/master/images/getithosted.png)](https://jelastic.com/install-application/?manifest=https%3A%2F%2Fgithub.com%2Fjelastic-jps%2Fdrupal%2Fraw%2Fmaster%2Fmanifest.jps)
+> If you already have a Virtuozzo Application Platform (VAP) account, you can deploy this solution from the [Marketplace](https://www.virtuozzo.com/application-platform-docs/marketplace/) or [import](https://www.virtuozzo.com/application-platform-docs/environment-import/) a manifest file from this repository.
 
-To deploy this package to Jelastic Private Cloud, import [this JPS manifest](../../raw/master/manifest.jps) within your dashboard ([detailed instruction](https://docs.jelastic.com/environment-export-import#import)).
 
-More information about Jelastic JPS package and about installation widget for your website can be found in the [Jelastic JPS Application Package](https://github.com/jelastic-jps/jpswiki/wiki/Jelastic-JPS-Application-Package) reference.
+## Installation Process
+
+In the opened installation window at the VAP dashboard, provide a preferred environment and display names, choose a region (if available), and confirm the installation.
+
+![Drupal deployment wizard](images/drupal-deployment-wizard.png)
+
+Your Drupal application will be automatically installed in a few minutes.
